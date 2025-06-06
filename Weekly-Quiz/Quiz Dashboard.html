@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)file:///Users/rahulverma/Downloads/GO%20work/1.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+	  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 280px;
+      background: rgba(248, 249, 250, 1);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 2rem;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      pointer-events: none;
+    }
+
+    .sidebar h2 {
+      color: black;
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subject-list {
+	  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      list-style: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subject-item {
+      margin-bottom: 1rem;
+    }
+
+    .subject-btn {
+      width: 100%;
+      background: rgba(255, 255, 255, 1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: black;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      text-align: left;
+    }
+
+    .subject-btn:hover {
+      background: rgba(87, 85, 202, 0.9);
+	  color: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .subject-btn.active {
+      background: rgba(67, 65, 173, 1);
+	  color: rgba(255, 255, 255, 1);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+	.subject-quiz_count{
+	}
+
+    /* Main Content Styles */
+    .main-content {
+	  color: black;
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .main-header {
+      color: black;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+	  float: right;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+	.column {
+  	  float: left;
+  	  width: 33.33%;
+  	  margin: 10%;
+	}
+
+	/* Clearfix (clear floats) */
+	.main-image::after {
+  	  content: "";
+  	  clear: both;
+  	  display: table;
+	}
+
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .quiz-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+	  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    }
+
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.6s;
+    }
+
+    .quiz-card:hover::before {
+      left: 100%;
+    }
+
+    .quiz-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    }
+
+    .quiz-title {
+      color: black;
+      font-size: 1.2rem;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    .attempt-btn {
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      color: black;
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      position: relative;
+      z-index: 1;
+	  text-decoration: none;
+    }
+
+    .attempt-btn:hover {
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.2) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .no-quizzes {
+      text-align: center;
+      color: rgba(0, 0, 0, 0.7);
+      font-size: 1.1rem;
+      padding: 3rem;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: black;
+      padding: 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mobile-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .dashboard {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        padding: 4rem 1rem 1rem;
+      }
+
+      .mobile-toggle {
+        display: block;
+      }
+
+      .quiz-card {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .quiz-title {
+        font-size: 1.1rem;
+      }
+
+      .main-header {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100vw;
+      }
+
+      .main-content {
+        padding: 4rem 0.5rem 1rem;
+      }
+
+      .quiz-card {
+        margin: 0 0.5rem;
+        padding: 1rem;
+      }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+  <!--main page content-->
+  <style>
+      .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 2rem;
+          position: relative;
+      }
+
+      /* Modern Doodles */
+      .doodle {
+          position: absolute;
+          opacity: 0.6;
+          animation: float 8s ease-in-out infinite;
+      }
+
+      .doodle:nth-child(even) {
+          animation-delay: -4s;
+      }
+
+      @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          33% { transform: translateY(-15px) rotate(3deg); }
+          66% { transform: translateY(-8px) rotate(-2deg); }
+      }
+
+      .doodle-1 {
+          top: 15%;
+          right: 10%;
+          width: 80px;
+          height: 80px;
+      }
+
+      .doodle-2 {
+          top: 30%;
+          left: 5%;
+          width: 70px;
+          height: 70px;
+      }
+
+      .doodle-3 {
+          bottom: 25%;
+          right: 15%;
+          width: 90px;
+          height: 90px;
+      }
+
+      .doodle-4 {
+          bottom: 40%;
+          left: 8%;
+          width: 60px;
+          height: 60px;
+      }
+
+      .doodle-5 {
+          top: 60%;
+          right: 40%;
+          width: 50px;
+          height: 50px;
+      }
+
+      .doodle-6 {
+          top: 45%;
+          left: 45%;
+          width: 40px;
+          height: 40px;
+      }
+
+      /* Header Section */
+      .header {
+          text-align: center;
+          padding: 4rem 0 3rem 0;
+          position: relative;
+          z-index: 10;
+      }
+
+      .main-title {
+          font-size: 4rem;
+          font-weight: 900;
+          color: #1a202c;
+          margin-bottom: 1rem;
+          letter-spacing: -2px;
+          line-height: 1.1;
+      }
+
+      .subtitle {
+          font-size: 1.5rem;
+          color: #4a5568;
+          font-weight: 400;
+          margin-bottom: 2rem;
+          letter-spacing: 0.5px;
+      }
+
+      .enrollment-tag {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 1rem;
+          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+          animation: glow 3s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow {
+          from { box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); }
+          to { box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5); }
+      }
+
+      /* Content Section */
+      .content-section {
+          margin: 6rem 0;
+          position: relative;
+          z-index: 5;
+      }
+
+      .feature-block {
+          margin: 4rem 0;
+          padding: 0 2rem;
+      }
+
+      .feature-icon {
+          font-size: 3rem;
+          margin-bottom: 1.5rem;
+          display: block;
+      }
+
+      .feature-title {
+          font-size: 2.2rem;
+          font-weight: 800;
+          color: #1a202c;
+          margin-bottom: 1.5rem;
+          line-height: 1.2;
+      }
+
+      .feature-description {
+          font-size: 1.2rem;
+          line-height: 1.8;
+          color: #4a5568;
+          max-width: 800px;
+          margin: 0 auto;
+      }
+
+      .highlight {
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-weight: 700;
+      }
+
+      .center-aligned {
+          text-align: center;
+      }
+
+      .left-aligned {
+          text-align: left;
+      }
+
+      .right-aligned {
+          text-align: right;
+      }
+
+      /* CTA Section */
+      .cta-section {
+          text-align: center;
+          padding: 5rem 2rem;
+          margin-top: 4rem;
+          background: linear-gradient(135deg, #f7fafc, #edf2f7);
+          border-radius: 40px;
+          position: relative;
+      }
+
+      .cta-title {
+          font-size: 2.5rem;
+          font-weight: 800;
+          color: #1a202c;
+          margin-bottom: 1.5rem;
+      }
+
+      .cta-subtitle {
+          font-size: 1.3rem;
+          color: #4a5568;
+          margin-bottom: 2.5rem;
+      }
+
+      .cta-button {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          padding: 1.2rem 3rem;
+          border-radius: 50px;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 1.2rem;
+          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+      }
+
+      .cta-button:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+          .main-title {
+              font-size: 2.8rem;
+          }
+          
+          .feature-title {
+              font-size: 1.8rem;
+          }
+          
+          .container {
+              padding: 1rem;
+          }
+          
+          .doodle {
+              opacity: 0.3;
+          }
+      }
+
+      /* Scroll animations */
+      .fade-in {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.6s ease;
+      }
+
+      .fade-in.visible {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+      <h1>☰</h1>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <h2>Subjects</h2>
+      <ul class="subject-list">
+        <li class="subject-item">
+          <button onclick="showQuizzes(&#39;free_for_all&#39;)" class="subject-btn" data-subject="free_for_all">
+            Free For all <p style="subject-quiz_count">(11)</p>
+          </button>
+        </li>
+        <li class="subject-item">
+          <button onclick="showQuizzes(&#39;fundamental_Course&#39;)" class="subject-btn" data-subject="fundamental_Course">
+            Fundamental Course <p style="subject-quiz_count">(1)</p>
+          </button>
+        </li>
+        <li class="subject-item">
+          <button onclick="showQuizzes(&#39;discrete_mathematics&#39;)" class="subject-btn" data-subject="discrete_mathematics">
+            Discrete Mathematics <p style="subject-quiz_count">(15)</p>
+          </button>
+        </li>
+        <li class="subject-item">
+          <button onclick="showQuizzes(&#39;engineering_mathematics&#39;)" class="subject-btn" data-subject="engineering_mathematics">
+            Engineering Math <p style="subject-quiz_count">(4)</p>
+          </button>
+        </li>
+        
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <h2 class="main-header"></h2>
+      <div id="quiz-container" class="quiz-container">
+	    <div class="container">
+	        <!-- Modern Doodles -->
+	        <div class="doodle doodle-1">
+	            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                <path d="M40 15C50 15 60 25 60 35C65 35 70 40 70 45C70 50 65 55 60 55H20C15 55 10 50 10 45C10 40 15 35 20 35C20 25 30 15 40 15Z" stroke="#667eea" stroke-width="3" fill="none"/>
+	                <circle cx="32" cy="38" r="3" fill="#667eea"/>
+	                <circle cx="48" cy="38" r="3" fill="#667eea"/>
+	                <path d="M28 48C32 52 48 52 52 48" stroke="#667eea" stroke-width="3" stroke-linecap="round"/>
+	                <path d="M25 25L35 15M55 15L45 25M40 5V15" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+	            </svg>
+	        </div>
+        
+	        <div class="doodle doodle-2">
+	            <svg viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                <circle cx="35" cy="28" r="15" stroke="#667eea" stroke-width="3" fill="none"/>
+	                <path d="M25 45h20v8h-20z" stroke="#667eea" stroke-width="3" fill="none"/>
+	                <path d="M27 53h16" stroke="#667eea" stroke-width="2"/>
+	                <path d="M35 10v6M55 28h-6M21 28h-6M50 18l-4 4M24 18l4 4" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+	                <circle cx="35" cy="28" r="5" fill="#667eea" opacity="0.3"/>
+	            </svg>
+	        </div>
+        
+	        <div class="doodle doodle-3">
+	            <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                <path d="M45 10L55 30H35L45 10Z" stroke="#667eea" stroke-width="3" fill="none"/>
+	                <rect x="38" y="30" width="14" height="25" stroke="#667eea" stroke-width="3" fill="none"/>
+	                <path d="M30 50L38 58L45 60L52 58L60 50" stroke="#764ba2" stroke-width="3" fill="none"/>
+	                <circle cx="45" cy="42" r="4" fill="#667eea"/>
+	                <path d="M20 70L25 75M70 70L65 75M15 60L20 65M75 60L70 65" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+	            </svg>
+	        </div>
+        
+	        <div class="doodle doodle-4">
+	            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                <path d="M15 20L10 30L15 40" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+	                <path d="M45 20L50 30L45 40" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+	                <path d="M35 15L25 45" stroke="#764ba2" stroke-width="3" stroke-linecap="round"/>
+	                <circle cx="30" cy="30" r="2" fill="#667eea"/>
+	                <circle cx="20" cy="15" r="2" fill="#764ba2"/>
+	                <circle cx="40" cy="45" r="2" fill="#764ba2"/>
+	            </svg>
+	        </div>
+        
+	        <div class="doodle doodle-5">
+	            <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                <rect x="10" y="15" width="30" height="20" rx="5" stroke="#667eea" stroke-width="3" fill="none"/>
+	                <path d="M15 25h5M25 25h5M15 30h10" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+	                <circle cx="35" cy="10" r="3" fill="#667eea"/>
+	                <circle cx="5" cy="35" r="2" fill="#764ba2"/>
+	                <path d="M42 18L45 15M42 32L45 35" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+	            </svg>
+	        </div>
+        
+	        <div class="doodle doodle-6">
+	            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+	                <path d="M8 12L20 8L32 12L28 24L20 32L12 24Z" stroke="#667eea" stroke-width="2" fill="none"/>
+	                <circle cx="20" cy="20" r="3" fill="#764ba2"/>
+	                <path d="M20 2V6M20 34V38M2 20H6M34 20H38" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+	            </svg>
+	        </div>
+
+	        <!-- Header -->
+	        <div class="header fade-in">
+	            <h1 class="main-title">GO Classes</h1>
+	            <p class="subtitle">GATE CSE 2026 Weekly Quizzes</p>
+	            <a style="text-decoration: none;" href="https://www.goclasses.in/s/store/courses/Tests%20&%20Quizzes" class="enrollment-tag">Enroll Now</a>
+	        </div>
+
+	        <!-- Content Section -->
+	        <div class="content-section">
+	            <div class="feature-block center-aligned fade-in">
+	                <span class="feature-icon">🎯</span>
+	                <h2 class="feature-title">Curated Quality Questions</h2>
+	                <p class="feature-description">
+	                    Questions designed by <span class="highlight">experts from the prestigious Indian Institute of Science</span>. 
+	                    Experience a unique set of questions offering fresh perspectives on standard topics, 
+	                    crafted to challenge and elevate your understanding.
+	                </p>
+	            </div>
+
+	            <div class="feature-block left-aligned fade-in">
+	                <span class="feature-icon">🧠</span>
+	                <h2 class="feature-title">Conceptually Rich and Logical Challenges</h2>
+	                <p class="feature-description">
+	                    Emphasis on <span class="highlight">critical thinking and deep understanding</span> of subjects. 
+	                    Our questions are designed to go beyond rote memorization, promoting genuine problem-solving skills 
+	                    that will serve you well in GATE and beyond.
+	                </p>
+	            </div>
+
+	            <div class="feature-block right-aligned fade-in">
+	                <span class="feature-icon">🔓</span>
+	                <h2 class="feature-title">Open Access Preview</h2>
+	                <p class="feature-description">
+	                    <span class="highlight">More than half of weekly quizzes are open access</span>. 
+	                    This allows prospective students to experience the caliber of questions and our teaching methods 
+	                    before making a commitment to the full program.
+	                </p>
+	            </div>
+
+	            <div class="feature-block center-aligned fade-in">
+	                <span class="feature-icon">🚀</span>
+	                <h2 class="feature-title">Mastering Exam Preparation</h2>
+	                <p class="feature-description">
+	                    Gain insights into the <span class="highlight">thought processes needed to excel in exams</span>. 
+	                    We don't just test your knowledge – we build your confidence and expertise, 
+	                    preparing you for success in GATE CSE 2026.
+	                </p>
+	            </div>
+	        </div>
+
+	        <!-- CTA Section -->
+	        <div class="cta-section fade-in">
+	            <h2 class="cta-title">Ready to Transform Your GATE Preparation?</h2>
+	            <p class="cta-subtitle">
+	                Join thousands of successful GATE aspirants who chose GO Classes for their journey to success
+	            </p>
+	            <a href="#" class="cta-button">Start Your Weekly Quiz Journey</a>
+	        </div>
+	    </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const quizzes = {
+		fundamental_Course: [
+          { title: "GO Classes GATE CS | Proof Techniques | Weekly Quiz", subject: "Proof Techniques", 
+  		  link: "https://gateoverflow.in/exam/837/go-classes-gate-cs-weekly-quiz-proof-techniques", remarks: "Open To All", id: 1}
+		],
+      free_for_all: [
+        { title: "GO Classes GATE CS | Proof Techniques | Weekly Quiz", subject: "Proof Techniques", 
+		  link: "https://gateoverflow.in/exam/837/go-classes-gate-cs-weekly-quiz-proof-techniques", remarks: "Open To All", id: 1},
+		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 1", subject: "Propostional logic",
+		 link: "https://gateoverflow.in/exam/840/go-classes-gate-cs-weekly-quiz-1-propositional-logic" , remarks: "Open To All",  id: 2},
+		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 2", subject: "Propostional logic",
+		 link: "https://gateoverflow.in/exam/841/go-classes-gate-cs-weekly-quiz-3-propositional-logic" , remarks: "Open To All",  id: 3},
+		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 3", subject: "Propostional logic",
+		 link: "https://gateoverflow.in/exam/845/go-classes-gate-cs-weekly-quiz-3-propositional-logic", remarks: "Open To All",  id: 4},
+		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 4", subject: "Propostional logic",
+		 link: "https://gateoverflow.in/exam/846/go-classes-gate-cs-weekly-quiz-4-propositional-logic", remarks: "Open To All",  id: 5},
+		 { title: "GO Classes GATE CS | First Order Logic | Weekly Quiz 1", subject: "First Order Logic",
+		 link: "https://gateoverflow.in/exam/847/go-classes-gate-cs-weekly-quiz-1-first-order-logic", remarks: "Open To All",  id: 6},
+		 { title: "GO Classes GATE CS | First Order Logic | Weekly Quiz 2", subject: "First Order Logic",
+		 link: "https://gateoverflow.in/exam/848/go-classes-gate-cs-weekly-quiz-2-first-order-logic", remarks: "Open To All",  id: 7},
+		 { title: "GO Classes GATE CS | Linear Algebra | Weekly Quiz 1", subject: "Linear Algebra",
+		 link: "https://gateoverflow.in/exam/850/go-classes-cs-da-2026-weekly-quiz-1-linear-algebra", remarks: "Open To All",  id: 8},
+		 { title: "GO Classes GATE CS/DA | Linear Algebra | Weekly Quiz 2", subject: "Linear Algebra",
+		 link: "https://gateoverflow.in/exam/852/go-classes-cs-da-2026-weekly-quiz-2-linear-algebra", remarks: "Open To All",  id: 9},
+		 { title: "GO Classes GATE CS/DA | Linear Algebra | Weekly Quiz 3", subject: "Linear Algebra",
+		 link: "https://gateoverflow.in/exam/857/go-classes-cs-da-2026-weekly-quiz-3-linear-algebra", remarks: "Open To All",  id: 10},
+		 { title: "GO Classes GATE CS/DA | Linear Algebra | Weekly Quiz 4", subject: "Linear Algebra",
+		 link: "https://gateoverflow.in/exam/878/go-classes-cs-da-2026-weekly-quiz-4-linear-algebra", remarks: "Open To All",  id: 11}
+      ],
+      engineering_mathematics: [
+ 		 { title: "GO Classes GATE CS | Linear Algebra | Weekly Quiz 1", subject: "Linear Algebra",
+ 		 link: "https://gateoverflow.in/exam/850/go-classes-cs-da-2026-weekly-quiz-1-linear-algebra", remarks: "Open To All",  id: 8},
+ 		 { title: "GO Classes GATE CS/DA | Linear Algebra | Weekly Quiz 2", subject: "Linear Algebra",
+ 		 link: "https://gateoverflow.in/exam/852/go-classes-cs-da-2026-weekly-quiz-2-linear-algebra", remarks: "Open To All",  id: 9},  
+ 		 { title: "GO Classes GATE CS/DA | Linear Algebra | Weekly Quiz 3", subject: "Linear Algebra",
+ 		 link: "https://gateoverflow.in/exam/857/go-classes-cs-da-2026-weekly-quiz-3-linear-algebra", remarks: "Open To All",  id: 10},
+ 		 { title: "GO Classes GATE CS/DA | Linear Algebra | Weekly Quiz 4", subject: "Linear Algebra",
+ 		 link: "https://gateoverflow.in/exam/878/go-classes-cs-da-2026-weekly-quiz-4-linear-algebra", remarks: "Open To All",  id: 11}
+      ],
+      discrete_mathematics: [
+ 		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 1", subject: "Propostional logic",
+ 		 link: "https://gateoverflow.in/exam/840/go-classes-gate-cs-weekly-quiz-1-propositional-logic" , remarks: "Open To All",  id: 1},
+ 		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 2", subject: "Propostional logic",
+ 		 link: "https://gateoverflow.in/exam/841/go-classes-gate-cs-weekly-quiz-3-propositional-logic" , remarks: "Open To All",  id: 2},
+ 		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 3", subject: "Propostional logic",
+ 		 link: "https://gateoverflow.in/exam/845/go-classes-gate-cs-weekly-quiz-3-propositional-logic", remarks: "Open To All",  id: 3},
+ 		 { title: "GO Classes GATE CS | Propositional Logic | Weekly Quiz 4", subject: "Propostional logic",
+ 		 link: "https://gateoverflow.in/exam/846/go-classes-gate-cs-weekly-quiz-4-propositional-logic", remarks: "Open To All",  id: 4},
+ 		 { title: "GO Classes GATE CS | First Order Logic | Weekly Quiz 1", subject: "First Order Logic",
+ 		 link: "https://gateoverflow.in/exam/847/go-classes-gate-cs-weekly-quiz-1-first-order-logic", remarks: "Open To All",  id: 5},
+ 		 { title: "GO Classes GATE CS | First Order Logic | Weekly Quiz 2", subject: "First Order Logic",
+ 		 link: "https://gateoverflow.in/exam/848/go-classes-gate-cs-weekly-quiz-2-first-order-logic", remarks: "Open To All",  id: 6},
+ 		 { title: "GO Classes CS 2026 | Weekly Quiz 1 | Set theory", subject: "Set Theory",
+ 		 link: "https://gateoverflow.in/exam/885/go-classes-gate-cs-2026-weekly-quiz-1-set-theory", remarks: "Enrolled Only",  id: 12},
+ 		 { title: "GO Classes CS 2026 | Weekly Quiz 2 | Set theory", subject: "Set Theory",
+ 		 link: "https://gateoverflow.in/exam/886/go-classes-cs-2026-weekly-quiz-2-set-theory", remarks: "Enrolled Only",  id: 13},
+ 		 { title: "GO Classes CS 2026 | Weekly Quiz 1 | Functions", subject: "Functions",
+ 		 link: "https://gateoverflow.in/exam/887/go-classes-cs-2026-weekly-quiz-1-functions", remarks: "Enrolled Only",  id: 14},
+ 		 { title: "GO Classes CS 2026 | Weekly Quiz 1 | Relations", subject: "Relations",
+ 		 link: "https://gateoverflow.in/exam/888/go-classes-cs-2026-relations-weekly-quiz-1", remarks: "Enrolled Only",  id: 15},
+ 		 { title: "GO Classes CS 2026 | Weekly Quiz 1 | Relations, Lattice & Poset", subject: "Relations, Lattice & Poset",
+ 		 link: "https://gateoverflow.in/exam/889/go-classes-cs-2026-relation-lattice-%26-poset-weekly-quiz-2", remarks: "Enrolled Only",  id: 16},
+ 		 { title: "GO Classes CS/DA 2026 | Weekly Quiz 1 | Combinatorics", subject: "Combinatorics",
+ 		 link: "https://gateoverflow.in/exam/908/go-classes-gate-cs-da-combinatorics-weekly-quiz-1", remarks: "Enrolled Only",  id: 17},
+ 		 { title: "GO Classes CS/DA 2026 | Weekly Quiz 2 | Combinatorics", subject: "Combinatorics",
+ 		 link: "https://gateoverflow.in/exam/909/go-classes-gate-cs-da-combinatorics-weekly-quiz-2", remarks: "Enrolled Only",  id: 18},
+ 		 { title: "GO Classes CS/DA 2026 | Weekly Quiz 3 | Combinatorics", subject: "Combinatorics",
+ 		 link: "https://gateoverflow.in/exam/924/go-classes-gate-cs-da-combinatorics-weekly-quiz-3", remarks: "Enrolled Only",  id: 19},
+ 		 { title: "GO Classes CS 2026 | Weekly Quiz 4 | Combinatorics", subject: "Combinatorics",
+ 		 link: "https://gateoverflow.in/exam/931/go-classes-gate-cs-combinatorics-weekly-quiz-4", remarks: "Enrolled Only",  id: 20}
+      ]
+    };
+
+    let currentSubject = null;
+
+    function showQuizzes(subject) {
+      const container = document.getElementById("quiz-container");
+      const subjectQuizzes = quizzes[subject] || [];
+      
+      // Update active button
+      document.querySelectorAll('.subject-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`[data-subject="${subject}"]`).classList.add('active');
+      
+      currentSubject = subject;
+      container.innerHTML = "";
+
+      if (subjectQuizzes.length === 0) {
+        container.innerHTML = '<div class="no-quizzes">No quizzes available for this subject.</div>';
+        return;
+      }
+
+      subjectQuizzes.forEach(quiz => {
+        const quizCard = document.createElement("div");
+        quizCard.className = "quiz-card";
+        
+		if (quiz.remarks !== "Open To All"){
+	        quizCard.innerHTML = `
+				<span class="quiz-title">
+				<h3>${quiz.title}</h3>
+				<p style="font-size: 0.9rem;">Subject: ${quiz.subject}</p>
+				</span>
+				<a href="${quiz.link}" class="attempt-btn" onclick="attemptQuiz(${quiz.id}, '${quiz.title}', '${quiz.link}')">
+	  	  			Attempt Quiz
+				</a>
+	        `;
+		}
+		else{
+	        quizCard.innerHTML = `
+				<span class="quiz-title">
+				<h3><img height=40px width=40px src="free2.png"/>${quiz.title}</h3>
+				<p style="font-size: 0.9rem;"><img height=10px width=40px src="blank space.png"/>Subject: ${quiz.subject}</p>
+				</span>
+				<a href="${quiz.link}" target="__blank" class="attempt-btn" onclick="attemptQuiz('${quiz.subject}', '${quiz.title}', '${quiz.link}')">
+	  	  			Attempt Quiz
+				</a>
+	        `;
+		}
+        container.appendChild(quizCard);
+      });
+
+      // Close sidebar on mobile after selection
+      if (window.innerWidth <= 768) {
+        closeSidebar();
+      }
+    }
+
+    function attemptQuiz(quizSubject, quizTitle) {
+      alert(`Starting "${quizTitle}" quiz!\nSubject: ${quizSubject}\n\nThis would redirect to the quiz page.`);
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    function closeSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.remove('open');
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const toggle = document.querySelector('.mobile-toggle');
+      
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !toggle.contains(event.target) && 
+          sidebar.classList.contains('open')) {
+        closeSidebar();
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768) {
+        closeSidebar();
+      }
+    });
+  </script>
+	
+  <script>
+      // Scroll animations
+      function animateOnScroll() {
+          const elements = document.querySelectorAll('.fade-in');
+          elements.forEach(element => {
+              const elementTop = element.getBoundingClientRect().top;
+              const elementVisible = 150;
+              
+              if (elementTop < window.innerHeight - elementVisible) {
+                  element.classList.add('visible');
+              }
+          });
+      }
+
+      window.addEventListener('scroll', animateOnScroll);
+      animateOnScroll(); // Run on load
+
+      // Parallax effect for doodles
+      document.addEventListener('mousemove', function(e) {
+          const mouseX = e.clientX / window.innerWidth;
+          const mouseY = e.clientY / window.innerHeight;
+          
+          document.querySelectorAll('.doodle').forEach((doodle, index) => {
+              const speed = (index % 3 + 1) * 0.1;
+              const x = (mouseX - 0.2) * speed * 30;
+              const y = (mouseY - 0.2) * speed * 30;
+              
+              doodle.style.transform = `translate(${x}px, ${y}px)`;
+          });
+      });
+
+      // Initial animation
+      window.addEventListener('load', function() {
+          document.querySelector('.header').classList.add('visible');
+      });
+  </script>
+
+</body></html>
